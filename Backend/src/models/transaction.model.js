@@ -26,13 +26,14 @@ const transactionSchema = new mongoose.Schema({
         type: String,
         default: null,
         unique: false,
-        sparse: false,
+        // allow multiple documents with null eventId by using a sparse index
+        sparse: true,
         index: true
     },
     qrCodeDataUrl: {
-    type: String,
-    default: null
-},
+        type: String,
+        default: null
+    },
 
     amountFcfa: {
         type: Number,
@@ -53,7 +54,7 @@ const transactionSchema = new mongoose.Schema({
 
     paymentMethod: {
         type: String,
-        default: "UNKNOWN"
+        default: "UNKNOWN",
         // Exemples : PHYSICAL_COIN, WAVE, ORANGE_MONEY, BACKEND_TEST
     },
 
@@ -71,50 +72,45 @@ const transactionSchema = new mongoose.Schema({
         type: Number,
         default: null
     },
-    eventId: {
-    type: String,
-    default: undefined
-},
+    waveEventId: {
+        type: String,
+        default: undefined
+    },
 
-waveEventId: {
-    type: String,
-    default: undefined
-},
+    waveTransactionId: {
+        type: String,
+        default: undefined
+    },
 
-waveTransactionId: {
-    type: String,
-    default: undefined
-},
+    senderMobile: {
+        type: String,
+        default: null
+    },
 
-senderMobile: {
-    type: String,
-    default: null
-},
+    merchantName: {
+        type: String,
+        default: null
+    },
 
-merchantName: {
-    type: String,
-    default: null
-},
+    customFields: {
+        type: Object,
+        default: null
+    },
 
-customFields: {
-    type: Object,
-    default: null
-},
+    rawWaveWebhook: {
+        type: Object,
+        default: null
+    },
 
-rawWaveWebhook: {
-    type: Object,
-    default: null
-},
+    failureReason: {
+        type: String,
+        default: null
+    },
 
-failureReason: {
-    type: String,
-    default: null
-},
-
-machineStateAtPayment: {
-    type: Object,
-    default: null
-},
+    machineStateAtPayment: {
+        type: Object,
+        default: null
+    },
 
     status: {
         type: String,
@@ -130,6 +126,35 @@ machineStateAtPayment: {
 
     rawEvent: {
         type: Object,
+        default: null
+    },
+
+    orangeMerchantCode: {
+        type: String,
+        default: null,
+        index: true
+    },
+
+    orangeTransactionId: {
+        type: String,
+        default: null,
+        index: true,
+        unique: true,
+        sparse: true
+    },
+
+    orangeCustomerMsisdn: {
+        type: String,
+        default: null
+    },
+
+    orangeQrResponse: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null
+    },
+
+    orangeCallbackPayload: {
+        type: mongoose.Schema.Types.Mixed,
         default: null
     }
 
@@ -150,21 +175,21 @@ transactionSchema.pre("validate", function (next) {
     next();
 });
 transactionSchema.index(
-    { eventId: 1 },
-    {
-        unique: true,
-        partialFilterExpression: {
-            eventId: { $type: "string" }
-        }
-    }
-);
-
-transactionSchema.index(
     { waveTransactionId: 1 },
     {
         unique: true,
         partialFilterExpression: {
             waveTransactionId: { $type: "string" }
+        }
+    }
+);
+
+transactionSchema.index(
+    { orangeTransactionId: 1 },
+    {
+        unique: true,
+        partialFilterExpression: {
+            orangeTransactionId: { $type: "string" }
         }
     }
 );

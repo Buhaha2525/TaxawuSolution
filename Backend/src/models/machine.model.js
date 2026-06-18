@@ -31,6 +31,27 @@ waveCustomId: {
     index: true
 },
 
+        orangeMerchantCode: {
+            type: String,
+            default: undefined,
+            trim: true,
+            index: true,
+            unique: true,
+            sparse: true
+        },
+
+        orangeMerchantName: {
+            type: String,
+            default: null,
+            trim: true
+        },
+
+        orangeCallbackUrl: {
+            type: String,
+            default: null,
+            trim: true
+        },
+
         // ============================================
         // IDENTIFICATION
         // ============================================

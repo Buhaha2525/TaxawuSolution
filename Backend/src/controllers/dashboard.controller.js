@@ -182,6 +182,9 @@ function normalizeMachine(machine, machineTransactions = []) {
         machineId: machine.machineId,
         name: machine.name || machine.machineId,
         location: machine.location || "Non défini",
+        orangeMerchantCode: machine.orangeMerchantCode || null,
+        orangeMerchantName: machine.orangeMerchantName || null,
+        orangeCallbackUrl: machine.orangeCallbackUrl || null,
         status: machine.status || "ACTIVE",
         mqttOnline: machine.mqttOnline === true,
         machineCanAcceptPayment: machine.machineCanAcceptPayment === true,
@@ -295,7 +298,7 @@ exports.getDashboardStats = async (req, res) => {
 exports.addMachine = async (req, res) => {
     try {
         const ownerId = getAuthUserId(req);
-        const { machineId, name, location } = req.body;
+        const { machineId, name, location, orangeMerchantCode, orangeMerchantName, orangeCallbackUrl } = req.body;
         if (!ownerId) return res.status(401).json({ success: false, message: "Non authentifié" });
         if (!machineId || !name || !location) return res.status(400).json({ success: false, message: "Champs requis" });
 
@@ -307,8 +310,18 @@ exports.addMachine = async (req, res) => {
         }
 
         const machine = await Machine.create({
-            machineId: normalizedId, name, location, ownerId,
-            status: "ACTIVE", mqttOnline: false, machineCanAcceptPayment: false, canDispense: false, currentState: "CREATED"
+            machineId: normalizedId,
+            name,
+            location,
+            ownerId,
+            status: "ACTIVE",
+            mqttOnline: false,
+            machineCanAcceptPayment: false,
+            canDispense: false,
+            currentState: "CREATED",
+            ...(orangeMerchantCode ? { orangeMerchantCode: String(orangeMerchantCode).trim() } : {}),
+            ...(orangeMerchantName ? { orangeMerchantName: String(orangeMerchantName).trim() } : {}),
+            ...(orangeCallbackUrl ? { orangeCallbackUrl: String(orangeCallbackUrl).trim() } : {})
         });
         res.status(201).json({ success: true, message: "Machine ajoutée", machine });
 
@@ -333,10 +346,17 @@ exports.getMachineDetails = async (req, res) => {
 exports.updateMachine = async (req, res) => {
     try {
         const userId = getAuthUserId(req);
-        const { name, location, status } = req.body;
+        const { name, location, status, orangeMerchantCode, orangeMerchantName, orangeCallbackUrl } = req.body;
         const machine = await Machine.findOneAndUpdate(
             { machineId: req.params.machineId, ...machineOwnerQuery(userId) },
-            { ...(name !== undefined ? { name } : {}), ...(location !== undefined ? { location } : {}), ...(status !== undefined ? { status } : {}) },
+            {
+                ...(name !== undefined ? { name } : {}),
+                ...(location !== undefined ? { location } : {}),
+                ...(status !== undefined ? { status } : {}),
+                ...(orangeMerchantCode !== undefined ? { orangeMerchantCode: orangeMerchantCode ? String(orangeMerchantCode).trim() : null } : {}),
+                ...(orangeMerchantName !== undefined ? { orangeMerchantName: orangeMerchantName ? String(orangeMerchantName).trim() : null } : {}),
+                ...(orangeCallbackUrl !== undefined ? { orangeCallbackUrl: orangeCallbackUrl ? String(orangeCallbackUrl).trim() : null } : {})
+            },
             { new: true }
         );
         if (!machine) return res.status(404).json({ success: false, message: "Introuvable" });

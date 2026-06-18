@@ -22,6 +22,7 @@ const machineRoutes = require("./routes/machine.routes");
 const authRoutes = require("./routes/auth.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const waveRoutes = require("./routes/wave.routes");
+const orangeRoutes = require("./routes/orange.routes");
 
 // Service MQTT
 require("./services/mqtt.service");
@@ -111,7 +112,8 @@ app.get("/api", (req, res) => {
             payments: "/api/payments",
             machine: "/api/machine",
             dashboard: "/api/dashboard",
-            wave: "/api/wave"
+            wave: "/api/wave",
+            orange: "/api/orange"
         }
     });
 });
@@ -121,6 +123,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/machine", machineRoutes);
 app.use("/api/wave", waveRoutes);
+app.use("/api/orange", orangeRoutes);
 
 // ============================================
 // 404
@@ -174,6 +177,7 @@ app.listen(PORT, () => {
     console.log(`   Payments      : http://localhost:${PORT}/api/payments`);
     console.log(`   Machine       : http://localhost:${PORT}/api/machine`);
     console.log(`   Wave          : http://localhost:${PORT}/api/wave`);
+    console.log(`   Orange Money  : http://localhost:${PORT}/api/orange`);
     console.log("============================================");
 });
 
