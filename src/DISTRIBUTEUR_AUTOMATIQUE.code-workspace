@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../Desktop/DISTRIBUTEUR_AUTOMATIQUE"
+		},
+		{
+			"name": "Monnayeur esp32",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}

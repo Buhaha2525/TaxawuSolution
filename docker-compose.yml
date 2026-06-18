@@ -1,0 +1,129 @@
+version: '3.9'
+
+services:
+  # ===================================
+  # MongoDB (Base de données)
+  # ===================================
+  mongodb:
+    image: mongo:7.0
+    container_name: monnayeur-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: monnayeur_user
+      MONGO_INITDB_ROOT_PASSWORD: monnayeur_password
+      MONGO_INITDB_DATABASE: monnayeur
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - monnayeur-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===================================
+  # Backend Node.js / Express
+  # ===================================
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: monnayeur-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      # MongoDB local
+      MONGODB_URI: mongodb://monnayeur_user:monnayeur_password@mongodb:27017/monnayeur?authSource=admin
+      # Wave API (à remplir)
+      WAVE_API_KEY: ${WAVE_API_KEY}
+      WAVE_SIGNING_SECRET: ${WAVE_SIGNING_SECRET}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET}
+      # MQTT (si ESP32 en local)
+      MQTT_BROKER: mqtt://mqtt:1883
+    volumes:
+      - ./Backend/src:/app/src
+      - ./Backend/public:/app/public
+      - /app/node_modules
+    networks:
+      - monnayeur-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ===================================
+  # MQTT Broker (Communication ESP32)
+  # ===================================
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    container_name: monnayeur-mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mqtt/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mqtt_data:/mosquitto/data
+      - mqtt_logs:/mosquitto/log
+    networks:
+      - monnayeur-network
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "localhost", "-t", "test", "-m", "test"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===================================
+  # MongoDB Express (Admin UI - DEV ONLY)
+  # ===================================
+  mongo-express:
+    image: mongo-express:latest
+    container_name: monnayeur-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: monnayeur_user
+      ME_CONFIG_MONGODB_ADMINPASSWORD: monnayeur_password
+      ME_CONFIG_MONGODB_URL: mongodb://monnayeur_user:monnayeur_password@mongodb:27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    networks:
+      - monnayeur-network
+    profiles:
+      - debug
+
+# ===================================
+# Volumes persistants
+# ===================================
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  mqtt_data:
+    driver: local
+  mqtt_logs:
+    driver: local
+
+# ===================================
+# Réseau partagé
+# ===================================
+networks:
+  monnayeur-network:
+    driver: bridge

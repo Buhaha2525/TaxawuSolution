@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta name="theme-color" content="#667eea">
+    <title>Connexion - Distributeur Auto</title>
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <i class="fas fa-robot"></i>
+        <h1>Distributeur Auto</h1>
+        <p>Connectez-vous à votre compte</p>
+    </div>
+
+    <div class="error" id="errorMsg"></div>
+
+    <form id="loginForm" autocomplete="on">
+        <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Email</label>
+            <input type="email" id="email" placeholder="exemple@email.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+            <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+            <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <div class="forgot-link">
+            <a href="/forgot-password">Mot de passe oublié ?</a>
+        </div>
+        <button type="submit">
+            <i class="fas fa-sign-in-alt"></i> Se connecter
+        </button>
+    </form>
+
+    <div class="spinner" id="spinner">
+        <div class="loader"></div>
+        <p style="margin-top:10px;color:#666;font-size:13px;">Connexion en cours...</p>
+    </div>
+
+    <div class="register-link">
+        Pas encore de compte ? <a href="/register">Créer un compte</a>
+    </div>
+</div>
+
+<script src="/js/login.js"></script>
+</body>
+</html>

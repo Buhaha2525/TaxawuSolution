@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>Dashboard - Distributeur Auto</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+<div class="header">
+    <div class="logo">🤖 Distributeur<span>Auto</span></div>
+    <div class="user-info">
+        <span class="user-name" id="userName">Chargement...</span>
+
+        <select id="machineSelector" onchange="onMainMachineChange()"
+                style="padding:6px 12px;border-radius:20px;border:1px solid #ddd;margin:0 10px;font-size:13px;">
+            <option value="">Toutes les machines</option>
+        </select>
+
+        <a href="/distributeur" style="background:#9C27B0;color:white;padding:8px 16px;border-radius:20px;text-decoration:none;font-size:13px;">
+            🤖 Distributeur
+        </a>
+
+        <button class="add-machine-btn" onclick="openAddMachineModal()">➕ Ajouter machine</button>
+        <button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="welcome-card">
+        <h1>Bonjour, <span id="welcomeName"></span> !</h1>
+        <p>Bienvenue sur votre tableau de bord de gestion</p>
+    </div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="chart-card">
+        <h3>🚰 Mes machines</h3>
+        <div class="machines-grid" id="machinesGrid">
+            <p>Chargement...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajout Machine -->
+<div class="modal" id="addMachineModal">
+    <div class="modal-content">
+        <div class="modal-title">➕ Ajouter une machine</div>
+        <input type="text" id="newMachineId" placeholder="ID Machine (ex: MACHINE3)" required>
+        <input type="text" id="newMachineName" placeholder="Nom de la machine" required>
+        <input type="text" id="newMachineLocation" placeholder="Emplacement" required>
+        <button onclick="addMachine()">Ajouter</button>
+        <button class="close-modal" onclick="closeAddMachineModal()">Fermer</button>
+    </div>
+</div>
+
+<!-- Modal Modification Machine -->
+<div class="modal" id="editMachineModal">
+    <div class="modal-content">
+        <div class="modal-title">✏️ Modifier la machine</div>
+        <input type="hidden" id="editMachineId">
+        <input type="text" id="editMachineName" placeholder="Nom de la machine" required>
+        <input type="text" id="editMachineLocation" placeholder="Emplacement" required>
+        <select id="editMachineStatus">
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="MAINTENANCE">Maintenance</option>
+        </select>
+        <button onclick="updateMachine()">💾 Enregistrer</button>
+        <button class="close-modal" onclick="closeEditMachineModal()">Annuler</button>
+    </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
