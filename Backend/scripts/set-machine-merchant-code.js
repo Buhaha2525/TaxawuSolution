@@ -2,10 +2,10 @@
 require('dotenv').config({ path: '.env' });
 const mongoose = require('mongoose');
 
-const MONGO = process.env.MONGODB_URI || 'mongodb://localhost:27017/monnayeur';
-const TARGET_MACHINE_ID = process.argv[2] || 'MACHINE_001';
+const MONGO = process.env.MONGODB_URI;
+const TARGET_MACHINE_ID = process.argv[2] || 'MACHINE4';
 const MERCHANT_CODE = process.argv[3] || process.env.ORANGE_MERCHANT_CODE || '614841';
-const MERCHANT_NAME = process.argv[4] || process.env.ORANGE_MERCHANT_NAME || 'Machine 1';
+const MERCHANT_NAME = process.argv[4] || process.env.ORANGE_MERCHANT_NAME || 'Machine 4c';
 const CALLBACK_URL = process.argv[5] || process.env.ORANGE_CALLBACK_URL || null;
 
 (async function(){

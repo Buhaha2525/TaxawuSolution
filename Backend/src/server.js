@@ -124,7 +124,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/machine", machineRoutes);
 app.use("/api/wave", waveRoutes);
 app.use("/api/orange", orangeRoutes);
-
+app.use("/api/orange-money", require("./routes/orange.routes"));
 // ============================================
 // 404
 // ============================================

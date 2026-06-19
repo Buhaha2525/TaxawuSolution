@@ -14,8 +14,8 @@ const envApiKey = process.env.ORANGE_API_KEY;
 
 // Les paramètres que vous devez fournir
 const merchantCode = process.argv[2] || "614841"; // Code marchand (6 chiffres)
-const callbackUrl = process.argv[3] || "https://twisted-outtakes-algorithm.ngrok-free.dev/api/orange/webhook/merchant-payment";
-const merchantName = process.argv[4] || "Machine 1";
+const callbackUrl = process.argv[3] || " https://isolative-josie-perceivedly.ngrok-free.dev/api/orange/webhook/merchant-payment";
+const merchantName = process.argv[4] || "Machine 4";
 const providedApiKey = process.argv[5] || null;
 const apiKey = providedApiKey || envApiKey;
 

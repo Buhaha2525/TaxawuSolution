@@ -2,7 +2,7 @@
 require('dotenv').config({ path: '.env' });
 const mongoose = require('mongoose');
 
-const MONGO = process.env.MONGODB_URI || 'mongodb://localhost:27017/monnayeur';
+const MONGO = process.env.MONGODB_URI;
 (async function(){
   try{
     await mongoose.connect(MONGO);

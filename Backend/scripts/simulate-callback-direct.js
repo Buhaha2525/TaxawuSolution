@@ -5,7 +5,7 @@ const Machine = require("../src/models/machine.model");
 const Transaction = require("../src/models/transaction.model");
 const mqttService = require("../src/services/mqtt.service");
 
-const MONGO = process.env.MONGODB_URI || "mongodb://localhost:27017/monnayeur";
+const MONGO = process.env.MONGODB_URI;
 
 const payload = {
   "amount": {
