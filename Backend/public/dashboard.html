@@ -3,31 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>Dashboard - Distributeur Auto</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard - AquaSass</title>
+
+    <!-- PWA -->
+    <link  rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AquaSass">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="theme-color" content="#667eea">
+
+
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 </head>
 <body>
-<div class="header">
-    <div class="logo">🤖 Distributeur<span>Auto</span></div>
-    <div class="user-info">
-        <span class="user-name" id="userName">Chargement...</span>
 
-        <select id="machineSelector" onchange="onMainMachineChange()"
-                style="padding:6px 12px;border-radius:20px;border:1px solid #ddd;margin:0 10px;font-size:13px;">
-            <option value="">Toutes les machines</option>
-        </select>
-
-        <a href="/distributeur" style="background:#9C27B0;color:white;padding:8px 16px;border-radius:20px;text-decoration:none;font-size:13px;">
-            🤖 Distributeur
-        </a>
-
-        <button class="add-machine-btn" onclick="openAddMachineModal()">➕ Ajouter machine</button>
-        <button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+<!-- ============================================ -->
+<!-- HEADER PROFESSIONNEL -->
+<!-- ============================================ -->
+<header class="header">
+    <div class="header-left">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            <span>Aqua<span class="logo-highlight">Sass</span></span>
+        </div>
     </div>
-</div>
 
-<div class="main-content">
+    <div class="header-center">
+        <div class="machine-selector-wrapper">
+            <i class="fas fa-microchip"></i>
+            <select id="machineSelector" onchange="onMainMachineChange()">
+                <option value="">Toutes les machines</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="header-user">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <span class="user-name" id="userName">Chargement...</span>
+        </div>
+
+        <nav class="header-nav">
+            <a href="/profil" class="nav-btn nav-profil" title="Mon profil">
+                <i class="fas fa-id-card"></i><span>Profil</span>
+            </a>
+            <a href="/distributeur" class="nav-btn nav-distributeur" title="Distributeur">
+                <i class="fas fa-microchip"></i><span>ESP32</span>
+            </a>
+            <!-- 🆕 Lien Admin (caché par défaut, visible si ADMIN) -->
+            <a href="/admin" id="adminLink" class="nav-btn" style="display:none;background:#fce4ec;color:#c62828;" title="Administration">
+                <i class="fas fa-crown"></i><span>Admin</span>
+            </a>
+            <a href="javascript:void(0)" onclick="exportCSV()" class="nav-btn nav-add" title="Exporter CSV">
+                <i class="fas fa-download"></i><span>CSV</span>
+            </a>
+            <button class="nav-btn nav-add" onclick="openAddMachineModal()" title="Ajouter une machine">
+                <i class="fas fa-plus-circle"></i><span>Machine</span>
+            </button>
+        </nav>
+
+        <button class="btn-logout" onclick="logout()" title="Déconnexion">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</header>
+
+<!-- ============================================ -->
+<!-- MAIN CONTENT -->
+<!-- ============================================ -->
+<main class="main-content">
     <div class="welcome-card">
         <h1>Bonjour, <span id="welcomeName"></span> !</h1>
         <p>Bienvenue sur votre tableau de bord de gestion</p>
@@ -41,7 +90,7 @@
             <p>Chargement...</p>
         </div>
     </div>
-</div>
+</main>
 
 <!-- Modal Ajout Machine -->
 <div class="modal" id="addMachineModal">
@@ -73,5 +122,6 @@
 </div>
 
 <script src="/js/dashboard.js"></script>
+<script src="/vendor/chartjs/chart.min.js"></script>
 </body>
 </html>

@@ -1,200 +1,175 @@
+// src/models/transaction.model.js
+
 const mongoose = require("mongoose");
 
-const transactionSchema = new mongoose.Schema({
-
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: null,
-        index: true
+const transactionSchema = new mongoose.Schema(
+    {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+            index: true
+        },
+        machineId: {
+            type: String,
+            default: null,
+            index: true
+        },
+        transactionId: {
+            type: String,
+            default: null,
+            unique: true,
+            sparse: true,
+            index: true
+        },
+        eventId: {
+            type: String,
+            default: null,
+            sparse: true,
+            index: true
+        },
+        qrCodeDataUrl: {
+            type: String,
+            default: null
+        },
+        amountFcfa: {
+            type: Number,
+            required: true
+        },
+        montant: {
+            type: Number,
+            default: null
+        },
+        numero: {
+            type: String,
+            default: null
+        },
+        paymentMethod: {
+            type: String,
+            default: "UNKNOWN",
+            index: true
+        },
+        provider: {
+            type: String,
+            default: null
+        },
+        source: {
+            type: String,
+            default: null
+        },
+        pulseCount: {
+            type: Number,
+            default: null
+        },
+        waveEventId: {
+            type: String,
+            default: undefined
+        },
+        waveTransactionId: {
+            type: String,
+            default: undefined,
+            sparse: true,
+            index: true
+        },
+        senderMobile: {
+            type: String,
+            default: null
+        },
+        merchantName: {
+            type: String,
+            default: null
+        },
+        customFields: {
+            type: Object,
+            default: null
+        },
+        rawWaveWebhook: {
+            type: Object,
+            default: null
+        },
+        failureReason: {
+            type: String,
+            default: null
+        },
+        machineStateAtPayment: {
+            type: Object,
+            default: null
+        },
+        status: {
+            type: String,
+            default: "PENDING",
+            index: true
+        },
+        reference: {
+            type: String,
+            default: () => Date.now().toString(),
+            index: true
+        },
+        rawEvent: {
+            type: Object,
+            default: null
+        },
+        orangeMerchantCode: {
+            type: String,
+            default: null,
+            index: true
+        },
+        orangeTransactionId: {
+            type: String,
+            default: null,
+            unique: true,
+            sparse: true,
+            index: true
+        },
+        orangeCustomerMsisdn: {
+            type: String,
+            default: null
+        },
+        orangeQrResponse: {
+            type: mongoose.Schema.Types.Mixed,
+            default: null
+        },
+        orangeCallbackPayload: {
+            type: mongoose.Schema.Types.Mixed,
+            default: null
+        }
     },
-    machineId: {
-        type: String,
-        default: null,
-        index: true
-    },
+    { timestamps: true }
+);
 
-    transactionId: {
-        type: String,
-        default: null,
-        unique: true,
-        sparse: true,
-        index: true
-    },
+// ============================================
+// INDEX COMPOSITES (Performance)
+// ============================================
 
-    eventId: {
-        type: String,
-        default: null,
-        unique: false,
-        // allow multiple documents with null eventId by using a sparse index
-        sparse: true,
-        index: true
-    },
-    qrCodeDataUrl: {
-        type: String,
-        default: null
-    },
+// Dashboard principal : transactions par utilisateur + date
+transactionSchema.index({ userId: 1, createdAt: -1 });
 
-    amountFcfa: {
-        type: Number,
-        required: true
-    },
+// Dashboard distributeur : transactions par machine + date
+transactionSchema.index({ machineId: 1, createdAt: -1 });
 
-    // Ancien champ conservé pour compatibilité avec ton ancien code paiement
-    montant: {
-        type: Number,
-        default: null
-    },
+// Filtrage par statut
+transactionSchema.index({ status: 1, createdAt: -1 });
 
-    // Utilisé surtout pour Wave / Orange Money
-    numero: {
-        type: String,
-        default: null
-    },
+// Filtrage par méthode de paiement
+transactionSchema.index({ paymentMethod: 1, createdAt: -1 });
 
-    paymentMethod: {
-        type: String,
-        default: "UNKNOWN",
-        // Exemples : PHYSICAL_COIN, WAVE, ORANGE_MONEY, BACKEND_TEST
-    },
+// Admin : toutes les transactions récentes
+transactionSchema.index({ createdAt: -1 });
 
-    provider: {
-        type: String,
-        default: null
-    },
+// Recherche par référence
+transactionSchema.index({ reference: 1 });
 
-    source: {
-        type: String,
-        default: null
-    },
-
-    pulseCount: {
-        type: Number,
-        default: null
-    },
-    waveEventId: {
-        type: String,
-        default: undefined
-    },
-
-    waveTransactionId: {
-        type: String,
-        default: undefined
-    },
-
-    senderMobile: {
-        type: String,
-        default: null
-    },
-
-    merchantName: {
-        type: String,
-        default: null
-    },
-
-    customFields: {
-        type: Object,
-        default: null
-    },
-
-    rawWaveWebhook: {
-        type: Object,
-        default: null
-    },
-
-    failureReason: {
-        type: String,
-        default: null
-    },
-
-    machineStateAtPayment: {
-        type: Object,
-        default: null
-    },
-
-    status: {
-        type: String,
-        default: "PENDING"
-        // Exemples : PENDING, DETECTED, SUCCESS, FAILED
-    },
-
-    reference: {
-        type: String,
-        default: () => Date.now().toString(),
-        index: true
-    },
-
-    rawEvent: {
-        type: Object,
-        default: null
-    },
-
-    orangeMerchantCode: {
-        type: String,
-        default: null,
-        index: true
-    },
-
-    orangeTransactionId: {
-        type: String,
-        default: null,
-        index: true,
-        unique: true,
-        sparse: true
-    },
-
-    orangeCustomerMsisdn: {
-        type: String,
-        default: null
-    },
-
-    orangeQrResponse: {
-        type: mongoose.Schema.Types.Mixed,
-        default: null
-    },
-
-    orangeCallbackPayload: {
-        type: mongoose.Schema.Types.Mixed,
-        default: null
-    }
-
-}, {
-    timestamps: true
-});
-
-// Compatibilité : si l'ancien code envoie montant au lieu de amountFcfa
+// ============================================
+// MIDDLEWARE
+// ============================================
 transactionSchema.pre("validate", function (next) {
     if (!this.amountFcfa && this.montant) {
         this.amountFcfa = this.montant;
     }
-
     if (!this.montant && this.amountFcfa) {
         this.montant = this.amountFcfa;
     }
-
     next();
 });
-transactionSchema.index(
-    { waveTransactionId: 1 },
-    {
-        unique: true,
-        partialFilterExpression: {
-            waveTransactionId: { $type: "string" }
-        }
-    }
-);
 
-transactionSchema.index(
-    { orangeTransactionId: 1 },
-    {
-        unique: true,
-        partialFilterExpression: {
-            orangeTransactionId: { $type: "string" }
-        }
-    }
-);
-
-module.exports = mongoose.model(
-    "Transaction",
-    transactionSchema
-);
+module.exports = mongoose.model("Transaction", transactionSchema);

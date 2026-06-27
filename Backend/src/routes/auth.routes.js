@@ -15,5 +15,6 @@ router.post("/reset-password", authController.resetPassword);
 
 // Routes protégées
 router.get("/profile", authMiddleware, authController.getProfile);
+router.post("/change-password", authMiddleware, authController.changePassword);  // ✅ ICI
 
 module.exports = router;

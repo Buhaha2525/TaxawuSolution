@@ -34,12 +34,27 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/login";
         return;
     }
+    // 🆕 Enregistrer le Service Worker pour la PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('✅ Service Worker enregistré:', reg.scope))
+                .catch(err => console.log('❌ Service Worker erreur:', err));
+        });
+    }
 
     loadDashboard();
     loadMainMachineSelector();
     setInterval(() => loadDashboard(false), 10000);
 });
-
+// Enregistrer le Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('✅ Service Worker enregistré'))
+            .catch(err => console.log('❌ Service Worker erreur:', err));
+    });
+}
 function getToken() {
     return localStorage.getItem("token") || "";
 }
@@ -104,6 +119,17 @@ async function loadDashboard(showError = true) {
 function updateUI(data) {
     document.getElementById("welcomeName").textContent = data.ownerName || "Utilisateur";
     document.getElementById("userName").textContent = data.ownerName || "Utilisateur";
+    // 🆕 Afficher le lien Admin si l'utilisateur est ADMIN
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            const adminLink = document.getElementById('adminLink');
+            if (adminLink) {
+                adminLink.style.display = user.role === 'ADMIN' ? 'flex' : 'none';
+            }
+        } catch (e) {}
+    }
 
     let machines = data.machines || [];
     if (currentFilterMachineId) {
@@ -335,7 +361,20 @@ function logout() { localStorage.removeItem("token"); localStorage.removeItem("u
 function openAddMachineModal() { document.getElementById("addMachineModal").style.display = "flex"; }
 function closeAddMachineModal() { document.getElementById("addMachineModal").style.display = "none"; }
 function closeEditMachineModal() { document.getElementById("editMachineModal").style.display = "none"; }
+// ============================================
+// EXPORT CSV
+// ============================================
+function exportCSV() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Vous devez être connecté');
+        return;
+    }
+    window.open(`/api/payments/export/csv?token=${token}`, '_blank');
+}
 
+// Exposer la fonction
+window.exportCSV = exportCSV;
 window.loadDashboard = loadDashboard;
 window.onMainMachineChange = onMainMachineChange;
 window.addMachine = addMachine;

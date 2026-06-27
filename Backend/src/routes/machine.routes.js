@@ -16,7 +16,7 @@ const {
 // ROUTE PUBLIQUE : État MQTT
 // ============================================
 router.get("/mqtt-status", (req, res) => {
-    const machineId = req.query.machineId || process.env.MACHINE_ID || "MACHINE_001";
+    const machineId = req.query.machineId || process.env.MACHINE_ID;
 
     res.json({
         success: true,
