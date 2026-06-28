@@ -4,57 +4,12 @@ const mongoose = require("mongoose");
 
 const machineSchema = new mongoose.Schema(
     {
-        // ============================================
-        // PROPRIÉTAIRE
-        // ============================================
         ownerId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
             index: true
         },
-        waveMiniUsineId: {
-    type: String,
-    default: undefined,
-    index: true
-},
-
-waveAccountNumber: {
-    type: String,
-    default: undefined,
-    index: true
-},
-
-waveCustomId: {
-    type: String,
-    default: undefined,
-    index: true
-},
-
-        orangeMerchantCode: {
-            type: String,
-            default: undefined,
-            trim: true,
-            index: true,
-            unique: true,
-            sparse: true
-        },
-
-        orangeMerchantName: {
-            type: String,
-            default: null,
-            trim: true
-        },
-
-        orangeCallbackUrl: {
-            type: String,
-            default: null,
-            trim: true
-        },
-
-        // ============================================
-        // IDENTIFICATION
-        // ============================================
         machineId: {
             type: String,
             required: true,
@@ -70,13 +25,16 @@ waveCustomId: {
             type: String,
             default: null
         },
-
-        // ============================================
-        // ÉTAT MQTT
-        // ============================================
+        status: {
+            type: String,
+            enum: ["ACTIVE", "INACTIVE", "MAINTENANCE"],
+            default: "ACTIVE",
+            index: true
+        },
         mqttOnline: {
             type: Boolean,
-            default: false
+            default: false,
+            index: true
         },
         canDispense: {
             type: Boolean,
@@ -95,21 +53,7 @@ waveCustomId: {
             type: String,
             default: "UNKNOWN"
         },
-        // ============================================
-// STATUT
-// ============================================
-        status: {
-            type: String,
-            enum: ["ACTIVE", "INACTIVE", "MAINTENANCE"],
-            default: "ACTIVE"
-        },
-        // ============================================
-        // TECHNIQUE
-        // ============================================
-        firmwareVersion: {
-            type: String,
-            default: null
-        },
+        firmwareVersion: String,
         lastSeenAt: Date,
         lastHeartbeatAt: Date,
         lastStatusAt: Date,
@@ -119,43 +63,55 @@ waveCustomId: {
         reason: String,
         lastErrorCode: String,
         lastErrorMessage: String,
+        totalTransactions: { type: Number, default: 0 },
+        totalRevenue: { type: Number, default: 0 },
+        totalDispenses: { type: Number, default: 0 },
 
-        // ============================================
-        // STATISTIQUES
-        // ============================================
-        totalTransactions: {
-            type: Number,
-            default: 0
+        // Wave
+        waveMerchantId: String,
+        waveMerchantName: String,
+
+        // Orange Money
+        orangeMerchantCode: {
+            type: String,
+            default: undefined,
+            trim: true,
+            index: true,
+            unique: true,
+            sparse: true
         },
-        totalRevenue: {
-            type: Number,
-            default: 0
+        orangeMerchantName: {
+            type: String,
+            default: null,
+            trim: true
         },
-        totalDispenses: {
-            type: Number,
-            default: 0
+        orangeCallbackUrl: {
+            type: String,
+            default: null,
+            trim: true
         },
 
-        // ============================================
-        // MÉTADONNÉES
-        // ============================================
         metadata: {
             type: Map,
             of: mongoose.Schema.Types.Mixed,
             default: {}
         }
     },
-    {
-        timestamps: true
-    }
+    { timestamps: true }
 );
 
 // ============================================
-// INDEX
+// INDEX COMPOSITES (Performance)
 // ============================================
+
+// Mes machines
 machineSchema.index({ ownerId: 1, machineId: 1 });
-machineSchema.index({ mqttOnline: 1 });
+
+// Machines en ligne par propriétaire
 machineSchema.index({ ownerId: 1, mqttOnline: 1 });
+
+// Dashboard admin : toutes les machines
+machineSchema.index({ createdAt: -1 });
 
 // ============================================
 // MÉTHODES
@@ -164,13 +120,11 @@ machineSchema.methods.updateHeartbeat = async function (data) {
     this.lastHeartbeatAt = new Date();
     this.lastSeenAt = new Date();
     this.mqttOnline = true;
-
     if (data.uptimeMs) this.lastUptimeMs = data.uptimeMs;
     if (data.freeHeap) this.lastFreeHeap = data.freeHeap;
     if (data.wifiRssi) this.lastWifiRssi = data.wifiRssi;
     if (data.state) this.currentState = data.state;
     if (data.firmwareVersion) this.firmwareVersion = data.firmwareVersion;
-
     await this.save();
 };
 
@@ -182,21 +136,15 @@ machineSchema.methods.updateStatus = async function (data) {
     this.machineCanAcceptPayment = data.machineCanAcceptPayment === true;
     this.counterLevel = data.counterLevel || "UNKNOWN";
     this.reason = data.reason || null;
-
     await this.save();
 };
 
-// ============================================
-// STATICS
-// ============================================
 machineSchema.statics.findByOwner = function (ownerId) {
-    return this.find({ ownerId });
+    return this.find({ ownerId }).sort({ createdAt: -1 });
 };
 
 machineSchema.statics.findOnlineByOwner = function (ownerId) {
     return this.find({ ownerId, mqttOnline: true });
 };
 
-const Machine = mongoose.model("Machine", machineSchema);
-
-module.exports = Machine;
+module.exports = mongoose.model("Machine", machineSchema);

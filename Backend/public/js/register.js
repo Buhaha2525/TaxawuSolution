@@ -1,113 +1,69 @@
 const API_URL = '';
 
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Attendre que le DOM soit prêt
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registerForm');
+    if (!form) return;
 
-    // Récupérer les valeurs et les nettoyer
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim().toLowerCase();
-    const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
-    const companyName = document.getElementById('companyName').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-
-    const errorDiv = document.getElementById('errorMsg');
-    const spinner = document.getElementById('spinner');
-    const button = document.querySelector('button');
-
-    // Cacher l'erreur précédente
-    errorDiv.style.display = 'none';
-
-    // Validation
-    if (!name || name.length < 2) {
-        errorDiv.textContent = 'Le nom doit contenir au moins 2 caractères.';
-        errorDiv.style.display = 'block';
+    // Rediriger si déjà connecté
+    if (localStorage.getItem('token')) {
+        window.location.href = '/dashboard';
         return;
     }
 
-    if (!email || !email.includes('@')) {
-        errorDiv.textContent = 'Veuillez entrer un email valide.';
-        errorDiv.style.display = 'block';
-        return;
-    }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    if (!phone || !/^[0-9]{9,13}$/.test(phone)) {
-        errorDiv.textContent = 'Numéro de téléphone invalide (9 à 13 chiffres).';
-        errorDiv.style.display = 'block';
-        return;
-    }
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim().toLowerCase();
+        const phone = document.getElementById('phone').value.trim().replace(/[\s\+\-\.\(\)]/g, '');
+        const companyName = document.getElementById('companyName').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-    if (!password || password.length < 6) {
-        errorDiv.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
-        errorDiv.style.display = 'block';
-        return;
-    }
+        const errorDiv = document.getElementById('errorMsg');
+        const spinner = document.getElementById('spinner');
+        const button = form.querySelector('button');
 
-    if (password !== confirmPassword) {
-        errorDiv.textContent = 'Les mots de passe ne correspondent pas.';
-        errorDiv.style.display = 'block';
-        return;
-    }
+        errorDiv.style.display = 'none';
 
-    // Afficher le spinner
-    spinner.style.display = 'block';
-    button.disabled = true;
-    button.textContent = 'Création en cours...';
+        if (!name || name.length < 2) return showError(errorDiv, 'Le nom doit contenir au moins 2 caractères.');
+        if (!email || !email.includes('@')) return showError(errorDiv, 'Email invalide.');
+        if (!/^[0-9]{9,13}$/.test(phone)) return showError(errorDiv, 'Téléphone invalide (9-13 chiffres).');
+        if (!password || password.length < 6) return showError(errorDiv, 'Mot de passe : 6 caractères minimum.');
+        if (password !== confirmPassword) return showError(errorDiv, 'Les mots de passe ne correspondent pas.');
 
-    // Construire le body
-    const body = {
-        name: name,
-        email: email,
-        phone: phone,
-        password: password
-    };
+        spinner.style.display = 'block';
+        button.disabled = true;
 
-    // Ajouter companyName seulement s'il n'est pas vide
-    if (companyName) {
-        body.companyName = companyName;
-    }
+        const body = { name, email, phone, password };
+        if (companyName) body.companyName = companyName;
 
-    console.log('📤 Envoi inscription:', { ...body, password: '***' });
+        try {
+            const res = await fetch(`${API_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
 
-    try {
-        const response = await fetch(`${API_URL}/api/auth/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
-
-        const data = await response.json();
-        console.log('📥 Réponse:', data);
-
-        if (data.success) {
-            // Sauvegarder le token
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-
-            // Rediriger vers le dashboard
-            window.location.href = '/dashboard';
-        } else {
-            // Afficher l'erreur
-            errorDiv.textContent = data.message || 'Erreur lors de l\'inscription.';
-            if (data.errors) {
-                errorDiv.textContent = data.errors.map(e => e.msg).join(', ');
+            if (data.success) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = '/dashboard';
+            } else {
+                showError(errorDiv, data.errors ? data.errors.map(e => e.msg).join(', ') : data.message);
             }
-            errorDiv.style.display = 'block';
+        } catch (error) {
+            showError(errorDiv, 'Erreur de connexion au serveur.');
+        } finally {
+            spinner.style.display = 'none';
+            button.disabled = false;
         }
-    } catch (error) {
-        console.error('❌ Erreur réseau:', error);
-        errorDiv.textContent = 'Erreur de connexion au serveur. Vérifiez votre connexion internet.';
-        errorDiv.style.display = 'block';
-    } finally {
-        spinner.style.display = 'none';
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-user-plus"></i> Créer mon compte';
-    }
+    });
 });
 
-// Rediriger si déjà connecté
-if (localStorage.getItem('token')) {
-    window.location.href = '/dashboard';
+function showError(el, msg) {
+    el.textContent = msg;
+    el.style.display = 'block';
 }

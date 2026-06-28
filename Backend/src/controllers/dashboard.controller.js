@@ -227,8 +227,12 @@ exports.getDashboardStats = async (req, res) => {
         const machinesRaw = await Machine.find(machineOwnerQuery(userId)).sort({ createdAt: -1 }).lean();
         const machineIds = machinesRaw.map(m => m.machineId);
 
+        // Au lieu de renvoyer 500 transactions, renvoyer 50 max
         const transactionsRaw = await Transaction.find(transactionOwnerQuery(userId, machineIds))
-            .sort({ createdAt: -1 }).limit(500).lean();
+            .sort({ createdAt: -1 })
+            .limit(50)  // ✅ Réduit de 500 à 50
+            .select('amountFcfa montant paymentMethod status machineId createdAt')  // ✅ Champs nécessaires seulement
+            .lean();
 
         const transactionsByMachine = {};
         transactionsRaw.forEach(tx => {

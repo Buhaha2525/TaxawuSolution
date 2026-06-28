@@ -1,0 +1,124 @@
+/* ============================================
+   ADMIN GLOBAL - TAXAWU SOLUTION
+   ============================================ */
+
+.badge-mqtt {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-connected { background: #e8f5e9; color: #2e7d32; }
+.badge-disconnected { background: #ffebee; color: #c62828; }
+.badge-unknown { background: #fff3e0; color: #e65100; }
+
+.section-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.section-header h3 { font-size: 16px; display: flex; align-items: center; gap: 8px; }
+
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+th { background: #f8f9fa; font-weight: 600; color: #666; white-space: nowrap; }
+tbody tr:hover { background: #fafbfc; }
+
+/* ============================================
+   GRAPHIQUE REVENUS
+   ============================================ */
+.chart-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.chart-card h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.chart-wrapper {
+    position: relative;
+    max-width: 450px;
+    max-height: 350px;
+    margin: 0 auto;
+}
+.chart-wrapper canvas {
+    max-height: 300px !important;
+}
+
+/* ============================================
+   BOUTON VOIR PLUS
+   ============================================ */
+.btn-load-more {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+.btn-load-more:hover {
+    background: #5a6fd6;
+}
+
+/* ============================================
+   STATS CARDS
+   ============================================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.stat-card {
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.stat-card div:first-child {
+    font-size: 13px;
+    color: #666;
+}
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .chart-wrapper {
+        max-width: 100%;
+    }
+}
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

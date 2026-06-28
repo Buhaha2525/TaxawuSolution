@@ -132,3 +132,41 @@ exports.updateTransactionStatus = async (req, res) => {
         res.status(500).json({ success: false, message: "Erreur serveur" });
     }
 };
+// ============================================
+// EXPORT CSV
+// ============================================
+exports.exportCSV = async (req, res) => {
+    try {
+        let filter = {};
+
+        // Si ADMIN → voir tout, sinon filtrer par userId
+        if (req.userRole !== "ADMIN") {
+            filter = { userId: req.userId };
+        }
+
+        const transactions = await Transaction.find(filter)
+            .sort({ createdAt: -1 })
+            .limit(1000);
+
+        // Générer le CSV
+        let csv = 'Date,Machine,Montant (FCFA),Méthode,Statut,Référence\n';
+        transactions.forEach(t => {
+            const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('fr-FR') : 'N/A';
+            const machine = t.machineId || 'N/A';
+            const amount = t.amountFcfa || t.montant || 0;
+            const method = t.paymentMethod || 'N/A';
+            const status = t.status || 'N/A';
+            const reference = t.reference || 'N/A';
+
+            csv += `${date},${machine},${amount},${method},${status},${reference}\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename=taxawu-transactions-${Date.now()}.csv`);
+        res.send('\uFEFF' + csv); // BOM pour Excel
+
+    } catch (error) {
+        console.error("Erreur export CSV:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

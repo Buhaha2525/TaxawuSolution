@@ -316,3 +316,27 @@ exports.resetPassword = async (req, res) => {
         });
     }
 };
+// Dans auth.controller.js, après getProfile
+
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, message: "Champs requis" });
+        }
+
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ success: false, message: "Utilisateur introuvable" });
+
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) return res.status(400).json({ success: false, message: "Mot de passe actuel incorrect" });
+
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ success: true, message: "Mot de passe changé avec succès" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+};

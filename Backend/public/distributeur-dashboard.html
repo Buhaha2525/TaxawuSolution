@@ -3,74 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>Distributeur - AquaSass</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AquaSass">
+    <link rel="apple-touch-icon" href="/icon-192.png">
     <meta name="theme-color" content="#667eea">
-    <title>Distributeur Auto - Dashboard</title>
-    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css" media="print" onload="this.media='all'">
+
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link rel="stylesheet" href="/css/distributeur-dashboard.css">
 </head>
 <body>
 
+<!-- ============================================ -->
+<!-- HEADER PROFESSIONNEL -->
+<!-- ============================================ -->
 <header class="header">
-    <div class="logo">🤖 Distributeur<span>Auto</span></div>
-    <div class="user-info">
-        <span class="user-name" id="userName">Chargement...</span>
-        <a href="/dashboard" class="nav-link-dash">💧 Dashboard</a>
-        <div class="status-badges">
-            <span id="mqttStatus" class="badge badge-disconnected"><i class="fas fa-circle"></i> MQTT</span>
-            <span id="machineStatus" class="badge badge-unknown"><i class="fas fa-circle"></i> Machine</span>
+    <div class="header-left">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            <span>Aqua<span class="logo-highlight">Sass</span></span>
         </div>
-        <button class="btn-header btn-test" onclick="openTestDispenseModal()"><i class="fas fa-flask"></i> Test</button>
-        <button class="btn-header btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+
+    <div class="header-right">
+        <div class="header-user">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <span class="user-name" id="userName">Chargement...</span>
+        </div>
+
+        <nav class="header-nav">
+            <a href="/profil" class="nav-btn nav-profil" title="Mon profil">
+                <i class="fas fa-id-card"></i><span>Profil</span>
+            </a>
+            <a href="/dashboard" class="nav-btn nav-distributeur" title="Dashboard">
+                <i class="fas fa-chart-bar"></i><span>Dashboard</span>
+            </a>
+        </nav>
+
+        <!-- Badge MQTT -->
+        <div class="status-badges">
+            <span id="mqttStatus" class="badge-mqtt badge-disconnected">
+                <i class="fas fa-circle"></i> MQTT
+            </span>
+        </div>
+
+        <button class="btn-logout" onclick="logout()" title="Déconnexion">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
     </div>
 </header>
 
+<!-- ============================================ -->
+<!-- MAIN CONTENT -->
+<!-- ============================================ -->
 <main class="main-content">
-    <div class="welcome-card"><h1>Bonjour, <span id="welcomeName"></span> !</h1><p>Supervision en temps réel</p></div>
-
-    <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon tx"><i class="fas fa-exchange-alt"></i></div><div class="stat-info"><div class="label">Transactions</div><div class="stat-value" id="totalTransactions">0</div></div></div>
-        <div class="stat-card"><div class="stat-icon rev"><i class="fas fa-money-bill-wave"></i></div><div class="stat-info"><div class="label">Revenus</div><div class="stat-value" id="totalRevenue">0 FCFA</div></div></div>
-        <div class="stat-card"><div class="stat-icon suc"><i class="fas fa-check-circle"></i></div><div class="stat-info"><div class="label">Taux succès</div><div class="stat-value" id="successRate">0%</div></div></div>
-        <div class="stat-card"><div class="stat-icon mac"><i class="fas fa-cogs"></i></div><div class="stat-info"><div class="label">État Machine</div><div class="stat-value" id="machineState">Inconnu</div></div></div>
+    <div class="welcome-card">
+        <h1>Bonjour, <span id="welcomeName"></span> !</h1>
+        <p>Supervision en temps réel de vos distributeurs</p>
     </div>
 
-    <div class="actions-bar"><button class="btn-refresh" onclick="refreshAllData()"><i class="fas fa-sync-alt"></i> Actualiser</button></div>
+    <!-- 4 cartes de stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon tx"><i class="fas fa-exchange-alt"></i></div>
+            <div class="stat-info">
+                <div class="label">Transactions</div>
+                <div class="stat-value" id="totalTransactions">0</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon rev"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-info">
+                <div class="label">💰 Chiffre d'affaires</div>
+                <div class="stat-value" id="totalRevenue">0 FCFA</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon suc"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <div class="label">Taux succès</div>
+                <div class="stat-value" id="successRate">0%</div>
+            </div>
+        </div>
+        <!-- ✅ État Machine dynamique -->
+        <div class="stat-card">
+            <div class="stat-icon mac"><i class="fas fa-cogs"></i></div>
+            <div class="stat-info">
+                <div class="label">État Machine</div>
+                <div class="stat-value" id="machineState">Inconnu</div>
+            </div>
+        </div>
+    </div>
 
+    <div class="actions-bar">
+        <button class="btn-refresh" onclick="refreshAllData()">
+            <i class="fas fa-sync-alt"></i> Actualiser les données
+        </button>
+    </div>
+
+    <!-- Transactions -->
     <div class="section-card">
-        <div class="section-header"><h3><i class="fas fa-list-alt"></i> Dernières Transactions</h3></div>
+        <div class="section-header">
+            <h3><i class="fas fa-list-alt"></i> Dernières Transactions</h3>
+        </div>
         <div class="filter-buttons">
             <button class="filter-btn active" data-filter="all">Toutes</button>
-            <button class="filter-btn" data-filter="COMPLETED">Succès</button>
-            <button class="filter-btn" data-filter="FAILED">Échecs</button>
-            <button class="filter-btn" data-filter="PENDING">En attente</button>
+            <button class="filter-btn" data-filter="COMPLETED">✅ Succès</button>
+            <button class="filter-btn" data-filter="FAILED">❌ Échecs</button>
+            <button class="filter-btn" data-filter="PENDING">⏳ En attente</button>
         </div>
-        <div class="table-responsive"><table><thead><tr><th>ID</th><th>Montant</th><th>Méthode</th><th>Statut</th><th>Date</th><th></th></tr></thead><tbody id="transactionsBody"><tr><td colspan="6" style="text-align:center;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr></tbody></table></div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Montant</th>
+                    <th>Méthode</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="transactionsBody">
+                <tr>
+                    <td colspan="6" style="text-align:center;padding:30px;">
+                        <i class="fas fa-spinner fa-spin"></i> Chargement...
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Événements Machine -->
     <div class="section-card">
-        <div class="section-header"><h3><i class="fas fa-history"></i> Événements Machine</h3></div>
-        <div class="table-responsive"><table><thead><tr><th>Type</th><th>Détails</th><th>Date</th></tr></thead><tbody id="eventsBody"><tr><td colspan="3" style="text-align:center;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr></tbody></table></div>
+        <div class="section-header">
+            <h3><i class="fas fa-history"></i> Événements Machine</h3>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Détails</th>
+                    <th>Date</th>
+                </tr>
+                </thead>
+                <tbody id="eventsBody">
+                <tr>
+                    <td colspan="3" style="text-align:center;padding:30px;">
+                        <i class="fas fa-spinner fa-spin"></i> Chargement...
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 
-<div class="modal" id="dispenseModal">
+<!-- Modal Détails Transaction -->
+<div class="modal" id="transactionModal">
     <div class="modal-content">
-        <div class="modal-title"><i class="fas fa-flask"></i> Test Distribution</div>
-        <select id="testMachineId" onchange="onMachineChange()"><option value="">Chargement...</option></select>
-        <select id="testAmountFcfa">
-            <option value="50">50 FCFA</option><option value="100">100 FCFA</option><option value="200">200 FCFA</option><option value="500">500 FCFA</option><option value="1000">1000 FCFA</option><option value="2000">2000 FCFA</option><option value="5000">5000 FCFA</option>
-        </select>
-        <button onclick="confirmTestDispense()"><i class="fas fa-paper-plane"></i> Envoyer</button>
-        <button class="close-modal" onclick="closeTestDispenseModal()">Annuler</button>
+        <div class="modal-title">
+            <i class="fas fa-info-circle"></i> Détails Transaction
+        </div>
+        <div id="transactionDetails" style="text-align:left;font-size:14px;"></div>
+        <button class="close-modal" onclick="closeTransactionModal()">Fermer</button>
     </div>
 </div>
 
-<div class="modal" id="transactionModal">
-    <div class="modal-content"><div class="modal-title"><i class="fas fa-info-circle"></i> Détails</div><div id="transactionDetails" style="text-align:left;font-size:14px;"></div><button class="close-modal" onclick="closeTransactionModal()">Fermer</button></div>
-</div>
-
+<!-- Toast -->
 <div id="toast" class="toast"></div>
-<footer class="footer"><p>© 2025 Distributeur Automatique Intelligent</p></footer>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2025 AquaSass - Tous droits réservés</p>
+</footer>
 
 <script src="/js/distributeur-dashboard.js"></script>
 </body>
